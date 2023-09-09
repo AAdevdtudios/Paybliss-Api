@@ -23,7 +23,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<DataContext>(o =>
 {
-    o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDB"));
+    o.UseNpgsql(builder.Configuration.GetConnectionString("ApiDB"));
 });
 
 builder.Services.AddCors(o => o.AddPolicy("policy", build =>
