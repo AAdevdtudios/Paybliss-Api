@@ -81,6 +81,7 @@ namespace Paybliss.Controllers
         {
             var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
             var response = await _authRepo.GetUser(userEmail);
+
             return response;
         }
     }
