@@ -48,13 +48,13 @@ namespace Paybliss.Consume
                 return response;
             }
 
-            if (user.VerifiedAt == null)
+            /*if (user.VerifiedAt == null)
             {
                 response.Message = "User is not verified";
                 response.Successful = false;
                 response.StatusCode = 400;
                 return response;
-            }
+            }*/
             refreshToken.Token = ConfirmTokens();
             refreshToken.user = user;
             var token = _context.RefreshTokens.FirstOrDefault(o => o.UserId == user.Id);
