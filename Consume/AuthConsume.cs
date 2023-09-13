@@ -257,7 +257,7 @@ namespace Paybliss.Consume
                 }
             }
 
-            var user = await _context.User.FirstOrDefaultAsync(o => o.Id == _refreshToken!.UserId);
+            var user = await _context.User.FirstOrDefaultAsync(db => db.Id == _refreshToken!.UserId);
             _refreshToken!.Token = _passwordHash.GenerateRefreshToken();
             await _context.SaveChangesAsync();
 
