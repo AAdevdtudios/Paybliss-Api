@@ -299,12 +299,19 @@ namespace Paybliss.Consume
             return response;
         }
 
-        public async Task<ResponseData<UserDto>> GetUser(string email)
+        public async Task<ResponseData<UserDto>> GetUser(string email, int pin)
         {
             var response = new ResponseData<UserDto>();
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Email == email);
+                if(user!.Pin == pin)
+                {
+                    response.Successful = false;
+                    response.Message = "Pin doesn't match";
+                    response.StatusCode = 400;
+                    return response;
+                }
                 response.Data = _mapper.Map<UserDto>(user);
                 response.Successful = true;
                 response.StatusCode = 200;

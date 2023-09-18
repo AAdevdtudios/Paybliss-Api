@@ -12,6 +12,6 @@ namespace Paybliss.Repository
         Task<ResponseData<UserDto>> ResetPassword(ResetPasswordDto resetPasswordDto);
         Task<ResponseData<RefreshTokenDto>> RefreshToken(RefreshTokenDto refreshToken);
         Task<ResponseData<UserDto>> SetPin(SetPinDto setpin);
-        Task<ResponseData<UserDto>> GetUser(string user);
+        Task<ResponseData<UserDto>> GetUser(string user, int pin);
     }
 }
