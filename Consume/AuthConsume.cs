@@ -305,7 +305,7 @@ namespace Paybliss.Consume
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Email == email);
-                if(user!.Pin == pin)
+                if(user!.Pin != pin)
                 {
                     response.Successful = false;
                     response.Message = "Pin doesn't match";

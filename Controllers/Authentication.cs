@@ -84,9 +84,9 @@ namespace Paybliss.Controllers
 
             return response;
         }*/
-        [HttpPost("getPin")]
+        [HttpGet("getPin")]
         [Authorize]
-        public async Task<ActionResult<ResponseData<UserDto>>> GetUser([FromBody]int pin)
+        public async Task<ActionResult<ResponseData<UserDto>>> GetUser([FromQuery]int pin)
         {
             var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
             var response = await _authRepo.GetUser(userEmail, pin);
