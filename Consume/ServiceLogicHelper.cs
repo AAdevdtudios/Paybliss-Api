@@ -27,7 +27,7 @@ namespace Paybliss.Consume
                 {
                     new Claim(ClaimTypes.Name, user.Email)
                 }),
-                Expires = DateTime.UtcNow.AddDays(1),
+                Expires = DateTime.UtcNow.AddDays(30),
                 Issuer = _jWTSettings.Issuer,
                 Audience = _jWTSettings.Audience,
                 SigningCredentials= new SigningCredentials(new SymmetricSecurityKey(tokenKey), SecurityAlgorithms.HmacSha256)
