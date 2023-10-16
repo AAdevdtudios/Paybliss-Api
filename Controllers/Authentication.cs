@@ -84,6 +84,7 @@ namespace Paybliss.Controllers
 
             return response;
         }*/
+        // /getpin&pin=1232
         [HttpGet("getPin")]
         [Authorize]
         public async Task<ActionResult<ResponseData<UserDto>>> GetUser([FromQuery]int pin)

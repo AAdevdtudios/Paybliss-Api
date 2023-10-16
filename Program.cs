@@ -6,6 +6,7 @@ using Paybliss.Data;
 using Paybliss.Models;
 using Paybliss.Repository;
 using System.Text;
+using Paybliss.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IAuthRepo, AuthConsume>();
 builder.Services.AddSingleton<IServiceLogicHelper, ServiceLogicHelper>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
+/*builder.Services.AddScoped<IVtuService, VtuServices>();*/
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<DataContext>(o =>
@@ -58,12 +60,13 @@ builder.Services.AddAuthentication(o =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+/*if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-
+}*/
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseCors("policy");
 app.UseHttpsRedirection();
 
