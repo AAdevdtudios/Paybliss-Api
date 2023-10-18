@@ -333,7 +333,7 @@ namespace Paybliss.Consume
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Email == email);
                 var newEmail = await _context.User.FirstOrDefaultAsync(o => o.Email == userData.email);
-                if(newEmail != null)
+                if(newEmail != null && newEmail.Email != userData.email)
                 {
                     response.Message = "Email is already in use";
                     response.Successful = false;
