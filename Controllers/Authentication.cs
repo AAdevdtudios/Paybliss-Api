@@ -96,7 +96,7 @@ namespace Paybliss.Controllers
         }
         [HttpPost("update-user")]
         [Authorize]
-        public async Task<ActionResult<ResponseData<UserDto>>> UpdateUser([FromBody]UserDto user)
+        public async Task<ActionResult<ResponseData<UserDto>>> UpdateUser([FromBody]UpdateUserDto user)
         {
             var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
             var response = await _authRepo.UpdateUser(userEmail,user);

@@ -326,13 +326,13 @@ namespace Paybliss.Consume
 
             return response;
         }
-        public async Task<ResponseData<UserDto>> UpdateUser(string email, UserDto userData)
+        public async Task<ResponseData<UserDto>> UpdateUser(string email, UpdateUserDto userData)
         {
             var response = new ResponseData<UserDto>();
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Email == email);
-                var newEmail = await _context.User.FirstOrDefaultAsync(o => o.Email == userData.Email);
+                var newEmail = await _context.User.FirstOrDefaultAsync(o => o.Email == userData.email);
                 if(newEmail != null)
                 {
                     response.Message = "Email is already in use";
@@ -340,12 +340,11 @@ namespace Paybliss.Consume
                     response.StatusCode = 409;
                     return response;
                 }
-                user!.Email = userData.Email;
-                user.FirstName = userData.FirstName;
-                user.LastName = userData.LastName;
+                user!.Email = userData.email;
+                user.FirstName = userData.firstname;
+                user.LastName = userData.lastname;
                 await _context.SaveChangesAsync();
                 response.Successful = true;
-                response.Data = userData;
                 response.Message = "User data updated";
                 response.Data = _mapper.Map<UserDto>(user);
                 return response;
