@@ -1,16 +1,12 @@
-﻿using Flurl;
+﻿using Azure;
+using Flurl;
 using Flurl.Http;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Common;
-using NuGet.Protocol.Core.Types;
+using Org.BouncyCastle.Asn1.Ocsp;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
 using Paybliss.Models.HttpResp;
 using Paybliss.Repository;
-using RestSharp;
-using RestSharp.Authenticators.OAuth2;
-using System.Diagnostics;
 
 namespace Paybliss.Controllers
 {
@@ -19,28 +15,31 @@ namespace Paybliss.Controllers
     //[Authorize]
     public class VtuServiceController : ControllerBase 
     {
-
-        public VtuServiceController()
+        private readonly IVtuService vtuService;
+        public VtuServiceController(IVtuService _vtuService)
         {
-                
+            vtuService = _vtuService;
         }
-        [HttpPost("internet/")]
+        [HttpPost("airtime/")]
         public async Task<ActionResult<ResponseData<AirtimeDto>>> PayForAirtime([FromQuery] AirtimeDto airtimeDto)
         {
-            var response = await "https://sandbox.payscribe.ng/api"
-                .AppendPathSegment("/v1/data/lookup")
-                .SetQueryParams(new
-                {
-                    network = airtimeDto.network,
-                }).WithHeaders(new
-                {
-                    User_Agent = "Flurl",
-                    Authentication = "Bearer ps_test_7b0a9d01ac341cc9b8df472a49dff4094e0bbc88dea3fab1d7fb5b65762873b6",
-                    content_type = "application/json",
-                })
-                .WithOAuthBearerToken("ps_test_7b0a9d01ac341cc9b8df472a49dff4094e0bbc88dea3fab1d7fb5b65762873b6")
-                .GetJsonAsync<InternetResponse.Details>();
-            return Ok(response.amount);
+            var response = await vtuService.ByAirtime(airtimeDto);
+
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("data")]
+        public async Task<ActionResult<ResponseData<List<DataLookUpResponse.Plan>>>> GetListOfData([FromQuery]string network)
+        {
+            var response = await vtuService.LoadNetworkData(network);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("data")]
+        public async Task<ActionResult<ResponseData<DataPaymentReq>>> PayForData([FromBody] DataPaymentReq paymentReq)
+        {
+            var response = await vtuService.DataPayment(paymentReq);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

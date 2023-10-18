@@ -5,7 +5,10 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ENDPOINTS": "https://sandbox.payscribe.ng/api",
+        "PAYSCRIBE_KEY_TEST": "ps_test_7b0a9d01ac341cc9b8df472a49dff4094e0bbc88dea3fab1d7fb5b65762873b6",
+        "PAYSCRIBE_KEY_LIVE": "ps_live_cc9d7be383804f714f5ee130a3cb3894bfa21379630c8d5992c061d926652502"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7260;http://localhost:5260"
@@ -23,7 +26,10 @@
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "https://+:443;http://+:80"
+        "ASPNETCORE_URLS": "https://+:443;http://+:80",
+        "ENDPOINTS": "https://sandbox.payscribe.ng/api",
+        "PAYSCRIBE_KEY_TEST": "ps_test_7b0a9d01ac341cc9b8df472a49dff4094e0bbc88dea3fab1d7fb5b65762873b6",
+        "PAYSCRIBE_KEY_LIVE": "ps_live_cc9d7be383804f714f5ee130a3cb3894bfa21379630c8d5992c061d926652502"
       },
       "publishAllPorts": true,
       "useSSL": true

@@ -20,6 +20,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IAuthRepo, AuthConsume>();
 builder.Services.AddSingleton<IServiceLogicHelper, ServiceLogicHelper>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddSingleton<IVtuService, VtuServices>();
 /*builder.Services.AddScoped<IVtuService, VtuServices>();*/
 builder.Services.AddHttpContextAccessor();
 

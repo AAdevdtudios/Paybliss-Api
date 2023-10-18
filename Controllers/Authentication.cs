@@ -94,5 +94,13 @@ namespace Paybliss.Controllers
 
             return StatusCode(response.StatusCode, response);
         }
+        [HttpPost("update-user")]
+        [Authorize]
+        public async Task<ActionResult<ResponseData<UserDto>>> UpdateUser([FromBody]UserDto user)
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
+            var response = await _authRepo.UpdateUser(userEmail,user);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
