@@ -57,6 +57,14 @@ namespace Paybliss.Controllers
             var response = await _authRepo.ResetPassword(resetPasswordDto);
             return StatusCode(response.StatusCode,response);
         }
+        [HttpPost("reset-pass")]
+        [Authorize]
+        public async Task<ActionResult<ResponseData<UserDto>>> ChangePassword(UpdatePasswordDto resetPasswordDto)
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Hash)!.Value;
+            var response = await _authRepo.UpdatePassword(userEmail, resetPasswordDto);
+            return StatusCode(response.StatusCode,response);
+        }
 
         [HttpPost("refresh-token")]
         public async Task<ActionResult<ResponseData<RefreshTokenDto>>> RefreshToken(RefreshTokenDto refreshTokenDto)

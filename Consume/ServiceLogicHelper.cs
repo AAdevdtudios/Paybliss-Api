@@ -25,7 +25,8 @@ namespace Paybliss.Consume
             var tokenDesc = new SecurityTokenDescriptor{
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, user.Email)
+                    new Claim(ClaimTypes.Name, user.Email),
+                    new Claim(ClaimTypes.Hash, user.Id.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(30),
                 Issuer = _jWTSettings.Issuer,

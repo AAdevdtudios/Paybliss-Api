@@ -357,8 +357,38 @@ namespace Paybliss.Consume
                 response.Message = e.Message;
                 return response;
             }
+        } 
+        public async Task<ResponseData<UserDto>> UpdatePassword(string userId, UpdatePasswordDto passwordDto)
+        {
+            var response = new ResponseData<UserDto>();
+            try
+            {
+                var user = await _context.User.FirstOrDefaultAsync(o => o.Id == int.Parse(userId));
+                if(!_passwordHash.VerifyPasswordHash(passwordDto.Password, user!.passwordHash, user.passwordSalt))
+                {
+                    response.Message = "User password is not correct";
+                    response.Successful = false;
+                    response.StatusCode = 400;
+                    return response;
+                }
+                _passwordHash.CreatePasswordHash(passwordDto.newPassword, out byte[] passwordHash, out byte[] passwordSalt);
+                user.passwordHash = passwordHash;
+                user.passwordSalt = passwordSalt;
+                await _context.SaveChangesAsync();
+                response.Successful = true;
+                response.StatusCode = 200;
+                response.Message = "User data updated";
+                response.Data = _mapper.Map<UserDto>(user);
+                return response;
+            }
+            catch (Exception e)
+            {
+                response.Successful = false;
+                response.StatusCode = 400;
+                response.Message = e.Message;
+                return response;
+            }
         }
-
     }
 }
  
