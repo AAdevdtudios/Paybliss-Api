@@ -343,6 +343,7 @@ namespace Paybliss.Consume
                 user!.Email = userData.email;
                 user.FirstName = userData.firstname;
                 user.LastName = userData.lastname;
+                response.StatusCode = 200;
                 await _context.SaveChangesAsync();
                 response.Successful = true;
                 response.Message = "User data updated";
