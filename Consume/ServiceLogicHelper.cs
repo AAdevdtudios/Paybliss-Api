@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Paybliss.Models;
 using Paybliss.Repository;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -70,6 +72,47 @@ namespace Paybliss.Consume
             var random = new Random();
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+        public Task SendEmail(string email, string otp)
+        {
+            var mail = "support@blissbill.co";
+            var pw = "November24@";
+
+            var client = new SmtpClient("mail.blissbill.co", 995)
+            {
+                EnableSsl = true,
+                Credentials = new NetworkCredential(mail,pw)
+            };
+            string body = WelcomeHTML(otp);
+
+            return client.SendMailAsync(new MailMessage(from:mail,to:email, "Welcome to Blissbill", body));
+        }
+
+        /*public void SendEmail(string email, string otp)
+        {
+            var sender = new MimeMessage();
+            //sender.From.Add(MailboxAddress.Parse(Environment.GetEnvironmentVariable("EMAIL")));
+            sender.From.Add(MailboxAddress.Parse("support@blissbill.co"));
+            sender.To.Add(MailboxAddress.Parse(email));
+            sender.Subject = "Welcome to Blissbill";
+            string body = WelcomeHTML(otp);
+            sender.Body = new TextPart(TextFormat.Html) { Text= body};
+
+            using var smtp = new SmtpClient();
+            //smtp.Connect(Environment.GetEnvironmentVariable("SMTP"), int.Parse(Environment.GetEnvironmentVariable("PORT")),SecureSocketOptions.StartTls);
+            smtp.Connect("mail.blissbill.co", 465, SecureSocketOptions.StartTls);
+            //smtp.Authenticate(Environment.GetEnvironmentVariable("EMAIL"), Environment.GetEnvironmentVariable("PASSWORD"));
+            smtp.Authenticate("support@blissbill.co", "November24@");
+            smtp.Send(sender);
+            smtp.Disconnect(true);
+        }*/
+        protected string WelcomeHTML(string otp)
+        {
+            var html = System.IO.File.ReadAllText(@"./assets/otp.html");
+
+            html = html.Replace("{{otp}}", otp);
+
+            return html;
         }
     }
 }

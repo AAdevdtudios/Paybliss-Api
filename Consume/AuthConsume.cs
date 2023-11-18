@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Flurl;
+using Flurl.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +20,8 @@ namespace Paybliss.Consume
         private readonly IServiceLogicHelper _passwordHash;
         private readonly IMapper _mapper;
         private readonly JWTSettings _jWTSettings;
+        public static string url = Environment.GetEnvironmentVariable("FLUTTERWAVEURL");
+        public static string flutterwaveSK = Environment.GetEnvironmentVariable("FLUTTERWAVESK");
 
         public AuthConsume(DataContext context, IServiceLogicHelper passwordHash, IMapper mapper, IOptions<JWTSettings> options)
         {
@@ -74,7 +78,7 @@ namespace Paybliss.Consume
             userDto.RefreshToken = refreshToken.Token;
             userDto.JWToken = _passwordHash.CreateJWToken(user);
 
-            response.Message = $"Welcome back {userDto.Email}";
+            response.Message = $"Welcome back {userDto.email}";
             response.Successful = true;
             response.StatusCode = 200;
             response.Data = userDto;
@@ -93,27 +97,42 @@ namespace Paybliss.Consume
         public async Task<ResponseData<UserDto>> RegisterUser(RegisterDto registerDto)
         {
             var response = new ResponseData<UserDto>();
-            if(_context.User.FirstOrDefault(o => o.Email == registerDto.Email) != null)
+            var refreshToken = new RefreshToken();
+            if (_context.User.FirstOrDefault(o => o.Email == registerDto.email) != null)
             {
                 response.Successful = false;
                 response.Message = "User already exist";
                 response.StatusCode = 400;
                 return response;
             }
-            _passwordHash.CreatePasswordHash(registerDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
 
-            registerDto.VerificationToken = _passwordHash.CreateToken();
+            _passwordHash.CreatePasswordHash(registerDto.password, out byte[] passwordHash, out byte[] passwordSalt);
 
             var userData = _mapper.Map<User>(registerDto);
             userData.passwordHash = passwordHash;
             userData.passwordSalt = passwordSalt;
+            userData.VerificationToken = _passwordHash.CreateToken();
+
+
+            refreshToken.Token = ConfirmTokens();
+            refreshToken.user = userData;
+
             _context.User.Add(userData);
+            _context.RefreshTokens.Add(refreshToken);
             await _context.SaveChangesAsync();
 
             response.Successful = true;
             response.Message = $"User with email: {userData.Email} has been created successfully";
             response.StatusCode = 200;
-            response.Data = _mapper.Map<UserDto>(userData);
+            var user = _mapper.Map<UserDto>(userData);
+            var token = _context.RefreshTokens.FirstOrDefault(o => o.UserId == userData.Id);
+
+            user.RefreshToken = refreshToken.Token;
+            user.JWToken = _passwordHash.CreateJWToken(userData);
+            response.Data = user;
+
+            //await _passwordHash.SendEmail(userData.Email, userData.VerificationToken);
+
             return response;
         }
 

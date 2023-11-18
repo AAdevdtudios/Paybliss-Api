@@ -8,7 +8,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ENDPOINTS": "https://sandbox.payscribe.ng/api",
         "PAYSCRIBE_KEY_TEST": "ps_test_7b0a9d01ac341cc9b8df472a49dff4094e0bbc88dea3fab1d7fb5b65762873b6",
-        "PAYSCRIBE_KEY_LIVE": "ps_live_cc9d7be383804f714f5ee130a3cb3894bfa21379630c8d5992c061d926652502"
+        "PAYSCRIBE_KEY_LIVE": "ps_live_cc9d7be383804f714f5ee130a3cb3894bfa21379630c8d5992c061d926652502",
+        "MAILKEY": "0a7dfdaac56ad366c9183740aeb66abb-1c7e8847-53b4a0d7",
+        "MAILAPI": "https://api.mailgun.net/v3",
+        "EMAIL": "admin@blissbill.co"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7260;http://localhost:5260"

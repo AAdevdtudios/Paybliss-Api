@@ -7,6 +7,8 @@ using Paybliss.Models;
 using Paybliss.Repository;
 using System.Text;
 using Paybliss.Controllers;
+using Reloadly.Airtime;
+using Reloadly.Core.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +22,16 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IAuthRepo, AuthConsume>();
 builder.Services.AddSingleton<IServiceLogicHelper, ServiceLogicHelper>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
-builder.Services.AddSingleton<IVtuService, VtuServices>();
+builder.Services.AddScoped<IVtuService, VtuServices>();
 /*builder.Services.AddScoped<IVtuService, VtuServices>();*/
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<IAirtimeApi, AirtimeApi>(
+    sp => new AirtimeApi(
+        sp.GetRequiredService<IHttpClientFactory>(),
+        "CvKhJSeo5jlANLbGgRC8bdWksf606Pjp", "FIF7E35vNA-enOyxiSVLELMvD16a87-oOAqEVBt93g8w9r4jNnDACG1sSbgi7Hj",
+        ReloadlyEnvironment.Sandbox,
+        disableTelemetry: true));
 
 builder.Services.AddDbContext<DataContext>(o =>
 {

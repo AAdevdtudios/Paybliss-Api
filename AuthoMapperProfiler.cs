@@ -12,6 +12,8 @@ namespace Paybliss
             CreateMap<UserDto, User>();
             CreateMap<User, RegisterDto>();
             CreateMap<RegisterDto, User>();
+            CreateMap<CablesDto, CableValues>();
+            CreateMap<CableValues, CablesDto>();
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using Azure;
-using Flurl;
-using Flurl.Http;
-using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
+﻿using Microsoft.AspNetCore.Mvc;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
 using Paybliss.Models.HttpResp;
@@ -36,9 +32,16 @@ namespace Paybliss.Controllers
         }
 
         [HttpPost("data")]
-        public async Task<ActionResult<ResponseData<DataPaymentReq>>> PayForData([FromBody] DataPaymentReq paymentReq)
+        public async Task<ActionResult> PayForData([FromBody] DataPaymentReq paymentReq)
         {
             var response = await vtuService.DataPayment(paymentReq);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPost("cable")]
+        public async Task<ActionResult> SaveCable([FromBody] CablesDto cablesDto)
+        {
+            var response = await vtuService.CreateCableNetwork(cablesDto);
             return StatusCode(response.StatusCode, response);
         }
     }

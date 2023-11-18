@@ -11,5 +11,7 @@ namespace Paybliss.Data
         }
         public DbSet<User> User { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<CableValues> Cables {  get; set; }
+        public DbSet<AccountDetails> AccountDetails { get; set; }
     }
 }

@@ -1,5 +1,7 @@
-﻿using Flurl;
+﻿using AutoMapper;
+using Flurl;
 using Flurl.Http;
+using Paybliss.Data;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
 using Paybliss.Models.HttpResp;
@@ -12,9 +14,13 @@ namespace Paybliss.Consume
         private static string url;
         private static string test_key;
         private static string live_key;
+        private readonly DataContext _context;
+        private readonly IMapper _mapper;
 
-        public VtuServices()
+        public VtuServices(DataContext context, IMapper mapper)
         {
+            _context = context;
+            _mapper = mapper;
             url = Environment.GetEnvironmentVariable("ENDPOINTS");
             test_key = Environment.GetEnvironmentVariable("PAYSCRIBE_KEY_TEST");
             live_key = Environment.GetEnvironmentVariable("PAYSCRIBE_KEY_LIVE");
@@ -108,7 +114,28 @@ namespace Paybliss.Consume
             }
         }
 
-
+        public async Task<ResponseData<CablesDto>> CreateCableNetwork(CablesDto cables)
+        {
+            var response = new ResponseData<CablesDto>();
+            try
+            {
+                var cable = _mapper.Map<CableValues>(cables);
+                _context.Cables.Add(cable);
+                await _context.SaveChangesAsync();
+                response.StatusCode = 200;
+                response.Data = cables;
+                response.Message = "Successful";
+                response.Successful = true;
+                return response;
+            }
+            catch (Exception e)
+            {
+                response.StatusCode = 400;
+                response.Message = "Failed server error";
+                response.Successful = false;
+                return response;
+            }
+        }
 
         #region This section handles Errors and messages
         private String HandleExceptios(int code)

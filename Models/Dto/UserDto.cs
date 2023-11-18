@@ -1,6 +1,15 @@
 ﻿namespace Paybliss.Models.Dto
 {
-    public class UserDto
+    public record struct UserDto(
+        string firstname, 
+        string lastname, 
+        string email, 
+        string phoneNumber, 
+        string verificationToken,
+        string JWToken,
+        string RefreshToken
+        );
+    /*public class UserDto
     {
         public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
@@ -16,5 +25,5 @@
         public DateTime? ResetTokenExpires { get; set; }
         public string JWToken { get; set; } = string.Empty;
         public string RefreshToken { get; set; } = string.Empty;
-    }
+    }*/
 }

@@ -9,6 +9,7 @@ namespace Paybliss.Models
         public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+        public AccountDetails? Account { get; set; }
         public int Pin { get; set; }
         public string? ReferralsCode { get; set; }
         public byte[] passwordHash { get; set; } = new byte[32];
