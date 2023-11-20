@@ -1,7 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MimeKit.Text;
+using MimeKit;
+using NuGet.Protocol.Plugins;
 using Paybliss.Models;
 using Paybliss.Repository;
+using RestSharp;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Mail;
@@ -73,20 +77,28 @@ namespace Paybliss.Consume
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
         }
-        public Task SendEmail(string email, string otp)
+        /*public async Task SendEmail(string email, string otp)
         {
-            var mail = "support@blissbill.co";
-            var pw = "November24@";
-
-            var client = new SmtpClient("mail.blissbill.co", 995)
-            {
-                EnableSsl = true,
-                Credentials = new NetworkCredential(mail,pw)
-            };
+            var client = new HttpClient();
             string body = WelcomeHTML(otp);
+            var requestData = new Dictionary<string, string>
+            {
+                {"from", Environment.GetEnvironmentVariable("EMAIL")},
+                {"to", email },
+                {"subjecr", "Welcome to Blissbill" },
+                {"html", body }
+            };
 
-            return client.SendMailAsync(new MailMessage(from:mail,to:email, "Welcome to Blissbill", body));
-        }
+            var request = new HttpRequestMessage()
+            {
+                RequestUri = new Uri($"{Environment.GetEnvironmentVariable("MAILAPI")}/message"),
+                Method = HttpMethod.Post,
+                Content = new FormUrlEncodedContent(requestData)
+            };
+            var response = await client.SendAsync(request);
+
+            return false;
+        }*/
 
         /*public void SendEmail(string email, string otp)
         {

@@ -10,6 +10,6 @@ namespace Paybliss.Repository
         bool VerifyPasswordHash(string Password, byte[] passwordHash, byte[] passwordSalt);
         string CreateJWToken(User user);
         string GenerateRefreshToken();
-        Task SendEmail(string email, string otp);
+        //Task SendEmail(string email, string otp);
     }
 }

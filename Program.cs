@@ -46,8 +46,19 @@ builder.Services.AddCors(o => o.AddPolicy("policy", build =>
 //JWT
 var jwtSettings = builder.Configuration.GetSection("JWTSettings");
 builder.Services.Configure<JWTSettings>(jwtSettings);
+var anyPolicy = "_MyAllowSubdomainPolicy";
 
 var authKey = builder.Configuration.GetValue<string>("JWTSettings:Secret");
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: anyPolicy,
+        policy =>
+        {
+            policy.WithOrigins("*")
+                .SetIsOriginAllowedToAllowWildcardSubdomains();
+        });
+});
+
 
 builder.Services.AddAuthentication(o =>
 {
@@ -75,6 +86,8 @@ var app = builder.Build();
     app.UseSwagger();
     app.UseSwaggerUI();
 }*/
+app.UseCors();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors("policy");
