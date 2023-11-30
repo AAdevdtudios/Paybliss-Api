@@ -34,9 +34,9 @@ namespace Paybliss.Repository.ServicesRepo
                 customer_type = "Personal"
 
             };
-            var response = await apiUrl.WithHeaders(new
+            var response = await "https://api.blochq.io/v1".WithHeaders(new
             {
-                authorization = apiKey,
+                authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
                 accept = "application/json",
                 content_type = "application/json"
             }).AppendPathSegment("/customers")
@@ -51,9 +51,9 @@ namespace Paybliss.Repository.ServicesRepo
             {
                 customer_id = response.data.id
             };
-            var accountRes = await apiUrl.WithHeaders(new
+            var accountRes = await "https://api.blochq.io/v1".WithHeaders(new
             {
-                authorization = apiKey,
+                authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
                 accept = "application/json",
                 content_type = "application/json"
             })
