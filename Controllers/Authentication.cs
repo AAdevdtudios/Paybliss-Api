@@ -44,9 +44,20 @@ namespace Paybliss.Controllers
         }
 
         [HttpPost("bvn")]
-        public async Task<bool> VeriftBvn(string email, string bvn)
+        public async Task<ActionResult<ResponseData<bool>>> VeriftBvn(string email, string bvn)
         {
-            return await _authRepo.VerifyBvn(bvn,email);
+            var response = new ResponseData<bool>();
+            bool res = await _authRepo.VerifyBvn(bvn, email);
+            response.Data = res;
+
+            if (res == false)
+                response.StatusCode = 400;
+            else
+                response.StatusCode = 200;
+
+            response.Successful = res;
+
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("send-token")]
