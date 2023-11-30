@@ -359,10 +359,10 @@ namespace Paybliss.Consume
                     return response;
                 }
                 var res = _mapper.Map<UserDto>(user);
-                res.accountNumber = user.Account!.accountNumber;
-                res.accountId = user.Account!.reference;
-                res.custormerId = user.custormerId;
-                res.amount = user.Account.amount;
+                res.accountNumber = user.Account!.accountNumber ?? "";
+                res.accountId = user.Account!.reference ?? "";
+                res.custormerId = user.custormerId??"";
+                res.amount = user.Account.amount ?? "";
                 response.Data = res;
                 response.Successful = true;
                 response.StatusCode = 200;
