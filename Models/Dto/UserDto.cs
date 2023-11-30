@@ -7,6 +7,10 @@
         string phoneNumber, 
         string verificationToken,
         string JWToken,
+        string custormerId,
+        string accountId,
+        string accountNumber,
+        string amount,
         string RefreshToken
         );
     /*public class UserDto

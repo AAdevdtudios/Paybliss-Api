@@ -158,30 +158,6 @@ namespace Paybliss.Consume
                 customer_type = "Personal"
 
             };
-            /*try
-            {
-                var response = await "https://api.blochq.io/v1".WithHeaders(new
-                {
-                    authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
-                    accept = "application/json",
-                    content_type = "application/json"
-                }).AppendPathSegment("/customers")
-                .PostJsonAsync(createCustomer)
-                .ReceiveJson<BlocResponse>();
-                if(response.success== true)
-                {
-                    return true;
-                }
-                else
-                {
-                    return response.success;
-                }
-            }
-            catch (Exception ex)
-            {
-                var message = ex;
-                return false;
-            }*/
             var jobId = BackgroundJob.Enqueue(()=> _bLOCService.CreateCustomers(email, bvn));
 
             return true;
@@ -382,7 +358,12 @@ namespace Paybliss.Consume
                     response.StatusCode = 400;
                     return response;
                 }
-                response.Data = _mapper.Map<UserDto>(user);
+                var res = _mapper.Map<UserDto>(user);
+                res.accountNumber = user.Account!.accountNumber;
+                res.accountId = user.Account!.reference;
+                res.custormerId = user.custormerId;
+                res.amount = user.Account.amount;
+                response.Data = res;
                 response.Successful = true;
                 response.StatusCode = 200;
                 response.Message = "User";
