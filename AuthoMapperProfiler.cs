@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
+using Paybliss.Models.HttpResp;
 
 namespace Paybliss
 {

@@ -9,6 +9,14 @@ namespace Paybliss.Data
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>()
+                .Property(b => b.custormerId)
+                .IsRequired(false)//optinal case
+                ;
+        }
         public DbSet<User> User { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<CableValues> Cables {  get; set; }

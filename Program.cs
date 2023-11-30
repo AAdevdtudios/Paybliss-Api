@@ -9,6 +9,9 @@ using System.Text;
 using Paybliss.Controllers;
 using Reloadly.Airtime;
 using Reloadly.Core.Enums;
+using Hangfire;
+using Hangfire.PostgreSql;
+using Paybliss.Repository.ServicesRepo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,19 @@ builder.Services.AddScoped<IAuthRepo, AuthConsume>();
 builder.Services.AddSingleton<IServiceLogicHelper, ServiceLogicHelper>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IVtuService, VtuServices>();
+builder.Services.AddScoped<IBLOCService, BLOCServiice>();
+
+//Third perty
+/*GlobalConfiguration.Configuration
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings();*/
+builder.Services.AddHangfire(x => x.UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+    .UsePostgreSqlStorage(builder.Configuration.GetConnectionString("ApiDB")));
+
+builder.Services.AddHangfireServer();
+
 /*builder.Services.AddScoped<IVtuService, VtuServices>();*/
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
@@ -92,6 +108,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseCors("policy");
 app.UseHttpsRedirection();
+app.UseHangfireDashboard();
 
 app.UseAuthentication();
 app.UseAuthorization();

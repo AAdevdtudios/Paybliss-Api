@@ -1,16 +1,18 @@
 ﻿using AutoMapper;
-using Flurl;
 using Flurl.Http;
+using Hangfire;
+using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Paybliss.Data;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
+using Paybliss.Models.HttpResp;
 using Paybliss.Repository;
+using Paybliss.Repository.ServicesRepo;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Cryptography;
-using System.Text;
+using System.Security.Claims;
 
 namespace Paybliss.Consume
 {
@@ -19,15 +21,19 @@ namespace Paybliss.Consume
         private readonly DataContext _context;
         private readonly IServiceLogicHelper _passwordHash;
         private readonly IMapper _mapper;
+        private readonly IBLOCService _bLOCService;
         private readonly JWTSettings _jWTSettings;
         public static string url = Environment.GetEnvironmentVariable("FLUTTERWAVEURL");
         public static string flutterwaveSK = Environment.GetEnvironmentVariable("FLUTTERWAVESK");
+        private readonly string apiUrl = Environment.GetEnvironmentVariable("BLOCURL");
+        private readonly string apiKey = Environment.GetEnvironmentVariable("BLOCKEY");
 
-        public AuthConsume(DataContext context, IServiceLogicHelper passwordHash, IMapper mapper, IOptions<JWTSettings> options)
+        public AuthConsume(DataContext context, IServiceLogicHelper passwordHash, IMapper mapper, IBLOCService bLOCService, IOptions<JWTSettings> options)
         {
             _context = context;
             _passwordHash = passwordHash;
             _mapper = mapper;
+            _bLOCService = bLOCService;
             _jWTSettings = options.Value;
         }
 
@@ -134,6 +140,51 @@ namespace Paybliss.Consume
             //await _passwordHash.SendEmail(userData.Email, userData.VerificationToken);
 
             return response;
+        }
+
+        public async Task<bool> VerifyBvn(string bvn, string email)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(e => e.Email == email);
+
+            if (user == null)
+                return false;
+            var createCustomer = new
+            {
+                email = email,
+                bvn = bvn,
+                first_name = user.FirstName,
+                last_name = user.LastName,
+                phone_number = user.PhoneNumber,
+                customer_type = "Personal"
+
+            };
+            /*try
+            {
+                var response = await "https://api.blochq.io/v1".WithHeaders(new
+                {
+                    authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
+                    accept = "application/json",
+                    content_type = "application/json"
+                }).AppendPathSegment("/customers")
+                .PostJsonAsync(createCustomer)
+                .ReceiveJson<BlocResponse>();
+                if(response.success== true)
+                {
+                    return true;
+                }
+                else
+                {
+                    return response.success;
+                }
+            }
+            catch (Exception ex)
+            {
+                var message = ex;
+                return false;
+            }*/
+            var jobId = BackgroundJob.Enqueue(()=> _bLOCService.CreateCustomers(email, bvn));
+
+            return true;
         }
 
         public async Task<ResponseData<UserDto>> VerifyUser(VerifyDto verifyDto)

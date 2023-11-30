@@ -15,5 +15,6 @@ namespace Paybliss.Repository
         Task<ResponseData<UserDto>> GetUser(string user, int pin);
         Task<ResponseData<UserDto>> UpdateUser(string email, UpdateUserDto user);
         Task<ResponseData<UserDto>> UpdatePassword(string email, UpdatePasswordDto passwordDto);
+        Task<bool> VerifyBvn(string bvn, string emaill);
     }
 }

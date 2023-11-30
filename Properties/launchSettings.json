@@ -11,10 +11,13 @@
         "PAYSCRIBE_KEY_LIVE": "ps_live_cc9d7be383804f714f5ee130a3cb3894bfa21379630c8d5992c061d926652502",
         "MAILKEY": "0a7dfdaac56ad366c9183740aeb66abb-1c7e8847-53b4a0d7",
         "MAILAPI": "https://api.mailgun.net/v3",
-        "EMAIL": "admin@blissbill.co"
+        "EMAIL": "admin@blissbill.co",
+        "BLOCKPUB": "Bearer pk_live_656201fe117aa609f99dfe3b656201fe117aa609f99dfe3c",
+        "BLOCKEY": "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
+        "BLOCURL": "https://api.blochq.io/v1"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://192.168.52.200:7260;http://192.168.52.200:5260"
+      "applicationUrl": "https://localhost:7260;http://localhost:5260"
     },
     "IIS Express": {
       "commandName": "IISExpress",
