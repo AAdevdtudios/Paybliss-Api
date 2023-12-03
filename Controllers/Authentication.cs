@@ -3,9 +3,11 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
 using Paybliss.Repository;
+using Paybliss.Repository.ServicesRepo;
 using System.Security.Claims;
 
 namespace Paybliss.Controllers
@@ -15,10 +17,12 @@ namespace Paybliss.Controllers
     public class Authentication : ControllerBase
     {
         private readonly IAuthRepo _authRepo;
+        private readonly BLOCServiice _blocService;
 
-        public Authentication(IAuthRepo authRepo)
+        public Authentication(IAuthRepo authRepo, BLOCServiice blocService)
         {
             _authRepo = authRepo;
+            _blocService = blocService;
         }
 
         [HttpPost("register")]
@@ -126,6 +130,15 @@ namespace Paybliss.Controllers
             var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
             var response = await _authRepo.UpdateUser(userEmail,user);
             return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet("Account")]
+        [Authorize]
+        public async Task<ActionResult<ResponseData<AccountDetails>>> GetAcount()
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
+            var res = await _blocService.GetAccountDetails(userEmail);
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Flurl.Http;
+using Microsoft.EntityFrameworkCore;
 using Paybliss.Data;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
@@ -49,7 +50,10 @@ namespace Paybliss.Repository.ServicesRepo
             user.custormerId = response.data.id;
             BlocReqDto blocReq = new BlocReqDto
             {
-                customer_id = response.data.id
+                customer_id = response.data.id,
+                preferred_bank = "Wema",
+                alias = "blis"
+
             };
             var accountRes = await "https://api.blochq.io/v1".WithHeaders(new
             {
@@ -58,7 +62,7 @@ namespace Paybliss.Repository.ServicesRepo
                 content_type = "application/json"
             })
                 .AppendPathSegment("/accounts")
-                .PostUrlEncodedAsync(new {blocReq })
+                .PostJsonAsync(blocReq)
                 .ReceiveJson<BlocAccountRes>();
             if (accountRes.success == false)
                 return await Task.FromResult(false);
@@ -77,6 +81,39 @@ namespace Paybliss.Repository.ServicesRepo
 
             await _context.SaveChangesAsync();
             return await Task.FromResult(true);
+        }
+        public async Task<ResponseData<AccountDetails>> GetAccountDetails(string email)
+        {
+            var response = new ResponseData<AccountDetails>();
+            var user = await _context.User.FirstOrDefaultAsync(i => i.Email == email);
+            try
+            {
+                var accountDetails = await "https://api.blochq.io/v1".WithHeaders(new
+                {
+                    authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
+                    accept = "application/json",
+                    content_type = "application/json"
+                }).AppendPathSegment("/accounts/number/")
+            .SetQueryParam("accountNumber", user!.Account!.accountNumber)
+            .GetJsonAsync<BlocAccount>();
+
+                user.Account.amount = accountDetails.data.balance.ToString();
+                await _context.SaveChangesAsync();
+
+                response.StatusCode = 200;
+                response.Successful = true;
+                response.Data = user!.Account;
+                response.Message = $"Account info is {user.FirstName}";
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Successful = false;
+                response.StatusCode = 400;
+                return response;
+            }
         }
     }
 }
