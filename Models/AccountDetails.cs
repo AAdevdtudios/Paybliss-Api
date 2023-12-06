@@ -11,6 +11,8 @@
         public string bank_name { get; set; }
         public string bank { get; set; }
         public int userId { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
         public User owner { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace Paybliss.Models
 {
@@ -10,6 +11,7 @@ namespace Paybliss.Models
         public string Email { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string custormerId { get; set; }
+        [System.Text.Json.Serialization.JsonIgnore]
         public AccountDetails? Account { get; set; }
         public int Pin { get; set; }
         public string? ReferralsCode { get; set; }

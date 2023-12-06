@@ -27,6 +27,7 @@ builder.Services.AddSingleton<IServiceLogicHelper, ServiceLogicHelper>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IVtuService, VtuServices>();
 builder.Services.AddScoped<IBLOCService, BLOCServiice>();
+//builder.Services.AddTransient<IBlocService, BlocService>();
 
 //Third perty
 /*GlobalConfiguration.Configuration

@@ -17,12 +17,10 @@ namespace Paybliss.Controllers
     public class Authentication : ControllerBase
     {
         private readonly IAuthRepo _authRepo;
-        private readonly BLOCServiice _blocService;
 
-        public Authentication(IAuthRepo authRepo, BLOCServiice blocService)
+        public Authentication(IAuthRepo authRepo)
         {
             _authRepo = authRepo;
-            _blocService = blocService;
         }
 
         [HttpPost("register")]
@@ -132,13 +130,6 @@ namespace Paybliss.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("Account")]
-        [Authorize]
-        public async Task<ActionResult<ResponseData<AccountDetails>>> GetAcount()
-        {
-            var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
-            var res = await _blocService.GetAccountDetails(userEmail);
-            return StatusCode(res.StatusCode, res);
-        }
+        
     }
 }

@@ -82,38 +82,22 @@ namespace Paybliss.Repository.ServicesRepo
             await _context.SaveChangesAsync();
             return await Task.FromResult(true);
         }
-        public async Task<ResponseData<AccountDetails>> GetAccountDetails(string email)
+        
+        public async Task<AccountDetails> GetAccount(string email)
         {
-            var response = new ResponseData<AccountDetails>();
-            var user = await _context.User.FirstOrDefaultAsync(i => i.Email == email);
-            try
+            var user = await _context.User.Include(c => c.Account).FirstOrDefaultAsync(i => i.Email == email);
+
+            var accountDetails = await "https://api.blochq.io/v1".WithHeaders(new
             {
-                var accountDetails = await "https://api.blochq.io/v1".WithHeaders(new
-                {
-                    authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
-                    accept = "application/json",
-                    content_type = "application/json"
-                }).AppendPathSegment("/accounts/number/")
-            .SetQueryParam("accountNumber", user!.Account!.accountNumber)
+                authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
+                accept = "application/json",
+                content_type = "application/json"
+            }).AppendPathSegment($"/accounts/number/{user!.Account!.accountNumber}")
             .GetJsonAsync<BlocAccount>();
 
-                user.Account.amount = accountDetails.data.balance.ToString();
-                await _context.SaveChangesAsync();
-
-                response.StatusCode = 200;
-                response.Successful = true;
-                response.Data = user!.Account;
-                response.Message = $"Account info is {user.FirstName}";
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                response.Message = ex.Message;
-                response.Successful = false;
-                response.StatusCode = 400;
-                return response;
-            }
+            user.Account.amount = accountDetails.data.balance.ToString();
+            await _context.SaveChangesAsync();
+            return user.Account;
         }
     }
 }
