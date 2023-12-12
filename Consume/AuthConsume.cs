@@ -332,6 +332,7 @@ namespace Paybliss.Consume
             user.Pin = setPin.pin;
             await _context.SaveChangesAsync();
             response.Successful = true;
+            response.StatusCode = 200;
             response.Message = "Pin set successfully";
             response.Data = _mapper.Map<UserItems>(user);
 
