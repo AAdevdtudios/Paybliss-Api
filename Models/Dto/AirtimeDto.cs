@@ -3,7 +3,8 @@
     public class AirtimeDto
     {
         public string network { get; set; }
-        public string amount { get; set; }
-        public string recipient { get; set; }
+        public int amount { get; set; }
+        public string account_id { get; set; }
+        public string phoneNumber { get; set; }
     }
 }

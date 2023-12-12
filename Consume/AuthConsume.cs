@@ -1,18 +1,15 @@
 ﻿using AutoMapper;
-using Flurl.Http;
 using Hangfire;
-using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Paybliss.Data;
 using Paybliss.Models;
+using Paybliss.Models.DataResponse;
 using Paybliss.Models.Dto;
-using Paybliss.Models.HttpResp;
 using Paybliss.Repository;
 using Paybliss.Repository.ServicesRepo;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Paybliss.Consume
 {
@@ -37,11 +34,11 @@ namespace Paybliss.Consume
             _jWTSettings = options.Value;
         }
 
-        public async Task<ResponseData<UserDto>> LoginUser(LoginDto loginDto)
+        public async Task<ResponseData<UserItems>> LoginUser(LoginDto loginDto)
         {
-            var user = await _context.User.FirstOrDefaultAsync(o => o.Email == loginDto.Email);
+            var user = await _context.User.Include(i=>i.Account).Include(i=>i.transactions).FirstOrDefaultAsync(o => o.Email == loginDto.Email);
             var refreshToken = new RefreshToken();
-            ResponseData<UserDto> response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
             if (user == null)
             {
                 response.Message = "User doesn't exist";
@@ -79,15 +76,19 @@ namespace Paybliss.Consume
             }
             
             await _context.SaveChangesAsync();
-            var userDto = _mapper.Map<UserDto>(user);
+            /*var userDto = _mapper.Map<UserDto>(user);
 
             userDto.RefreshToken = refreshToken.Token;
-            userDto.JWToken = _passwordHash.CreateJWToken(user);
+            userDto.JWToken = _passwordHash.CreateJWToken(user);*/
 
-            response.Message = $"Welcome back {userDto.email}";
+            var userRes = _mapper.Map<UserItems>(user);
+            userRes.JWToken = _passwordHash.CreateJWToken(user);
+            userRes.RefreshToken = token!.Token;
+
+            response.Message = $"Welcome back {user.Email}";
             response.Successful = true;
             response.StatusCode = 200;
-            response.Data = userDto;
+            response.Data = userRes;
 
             return response;
         }
@@ -100,9 +101,9 @@ namespace Paybliss.Consume
             return _passwordHash.GenerateRefreshToken();
         }
 
-        public async Task<ResponseData<UserDto>> RegisterUser(RegisterDto registerDto)
+        public async Task<ResponseData<UserItems>> RegisterUser(RegisterDto registerDto)
         {
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
             var refreshToken = new RefreshToken();
             if (_context.User.FirstOrDefault(o => o.Email == registerDto.email) != null)
             {
@@ -127,15 +128,16 @@ namespace Paybliss.Consume
             _context.RefreshTokens.Add(refreshToken);
             await _context.SaveChangesAsync();
 
+            var userRes = _mapper.Map<UserItems>(userData);
+            userRes.JWToken = _passwordHash.CreateJWToken(userData);
+            userRes.RefreshToken = refreshToken.Token;
+
+            var jobId = BackgroundJob.Enqueue(() => _bLOCService.CreateCustomers(userRes.Email, userRes.bvn));
+
             response.Successful = true;
             response.Message = $"User with email: {userData.Email} has been created successfully";
             response.StatusCode = 200;
-            var user = _mapper.Map<UserDto>(userData);
-            var token = _context.RefreshTokens.FirstOrDefault(o => o.UserId == userData.Id);
-
-            user.RefreshToken = refreshToken.Token;
-            user.JWToken = _passwordHash.CreateJWToken(userData);
-            response.Data = user;
+            response.Data = userRes;
 
             //await _passwordHash.SendEmail(userData.Email, userData.VerificationToken);
 
@@ -148,25 +150,16 @@ namespace Paybliss.Consume
 
             if (user == null)
                 return false;
-            var createCustomer = new
-            {
-                email = email,
-                bvn = bvn,
-                first_name = user.FirstName,
-                last_name = user.LastName,
-                phone_number = user.PhoneNumber,
-                customer_type = "Personal"
-
-            };
+            
             var jobId = BackgroundJob.Enqueue(()=> _bLOCService.CreateCustomers(email, bvn));
 
             return true;
         }
 
-        public async Task<ResponseData<UserDto>> VerifyUser(VerifyDto verifyDto)
+        public async Task<ResponseData<UserItems>> VerifyUser(VerifyDto verifyDto)
         {
             var user = await _context.User.FirstOrDefaultAsync(o => o.Email == verifyDto.Email);
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
 
             if (user == null)
             {
@@ -195,7 +188,7 @@ namespace Paybliss.Consume
             response.Successful = true;
             response.StatusCode = 200;
             response.Message = "User is verified";
-            response.Data = _mapper.Map<UserDto>(user);
+            response.Data = _mapper.Map<UserItems>(user);
             return response;
         }
 
@@ -220,10 +213,10 @@ namespace Paybliss.Consume
             return response;
         }
 
-        public async Task<ResponseData<UserDto>> ResetPassword(ResetPasswordDto resetPasswordDto)
+        public async Task<ResponseData<UserItems>> ResetPassword(ResetPasswordDto resetPasswordDto)
         {
             var user = await _context.User.FirstOrDefaultAsync(o => o.Email == resetPasswordDto.Email);
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
 
             if (user == null)
             {
@@ -260,7 +253,7 @@ namespace Paybliss.Consume
             response.Successful = true;
             response.StatusCode = 200;
             response.Message = "Password reset successful";
-            response.Data = _mapper.Map<UserDto>(user);
+            response.Data = _mapper.Map<UserItems>(user);
 
             return response;
         }
@@ -325,10 +318,10 @@ namespace Paybliss.Consume
             return dateTime.AddSeconds(unixTimeStamp).ToUniversalTime();
         }
 
-        public async Task<ResponseData<UserDto>> SetPin(SetPinDto setPin)
+        public async Task<ResponseData<UserItems>> SetPin(SetPinDto setPin)
         {
             var user = _context.User.FirstOrDefault(o=>o.Email == setPin.email);
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
             if(user == null)
             {
                 response.Successful = false;
@@ -340,14 +333,14 @@ namespace Paybliss.Consume
             await _context.SaveChangesAsync();
             response.Successful = true;
             response.Message = "Pin set successfully";
-            response.Data = _mapper.Map<UserDto>(user);
+            response.Data = _mapper.Map<UserItems>(user);
 
             return response;
         }
 
-        public async Task<ResponseData<UserDto>> GetUser(string email, int pin)
+        public async Task<ResponseData<UserItems>> GetUser(string email, int pin)
         {
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Email == email);
@@ -358,7 +351,7 @@ namespace Paybliss.Consume
                     response.StatusCode = 400;
                     return response;
                 }
-                response.Data = _mapper.Map<UserDto>(user);
+                response.Data = _mapper.Map<UserItems>(user);
                 response.Successful = true;
                 response.StatusCode = 200;
                 response.Message = "User";
@@ -372,9 +365,9 @@ namespace Paybliss.Consume
 
             return response;
         }
-        public async Task<ResponseData<UserDto>> UpdateUser(string email, UpdateUserDto userData)
+        public async Task<ResponseData<UserItems>> UpdateUser(string email, UpdateUserDto userData)
         {
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Email == email);
@@ -386,14 +379,28 @@ namespace Paybliss.Consume
                     response.StatusCode = 409;
                     return response;
                 }
+
                 user!.Email = userData.email;
                 user.FirstName = userData.firstname;
                 user.LastName = userData.lastname;
-                response.StatusCode = 200;
+                user.bvn = userData.bvn;
+
                 await _context.SaveChangesAsync();
+
+                if (user!.custormerId != "")
+                {
+                    var updateUserJob = BackgroundJob.Enqueue(() => _bLOCService.UpdateCustomer(email));
+                }
+                else
+                {
+                    var jobId = BackgroundJob.Enqueue(
+                    () => _bLOCService.CreateCustomers(userData.email, userData.bvn));
+                }
+
+                response.StatusCode = 200;
                 response.Successful = true;
                 response.Message = "User data updated";
-                response.Data = _mapper.Map<UserDto>(user);
+                response.Data = _mapper.Map<UserItems>(user);
                 return response;
             }
             catch (Exception e)
@@ -404,9 +411,9 @@ namespace Paybliss.Consume
                 return response;
             }
         } 
-        public async Task<ResponseData<UserDto>> UpdatePassword(string userId, UpdatePasswordDto passwordDto)
+        public async Task<ResponseData<UserItems>> UpdatePassword(string userId, UpdatePasswordDto passwordDto)
         {
-            var response = new ResponseData<UserDto>();
+            var response = new ResponseData<UserItems>();
             try
             {
                 var user = await _context.User.FirstOrDefaultAsync(o => o.Id == int.Parse(userId));
@@ -424,7 +431,7 @@ namespace Paybliss.Consume
                 response.Successful = true;
                 response.StatusCode = 200;
                 response.Message = "User data updated";
-                response.Data = _mapper.Map<UserDto>(user);
+                response.Data = _mapper.Map<UserItems>(user);
                 return response;
             }
             catch (Exception e)

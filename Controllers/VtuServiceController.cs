@@ -19,7 +19,7 @@ namespace Paybliss.Controllers
         [HttpPost("airtime/")]
         public async Task<ActionResult<ResponseData<AirtimeDto>>> PayForAirtime([FromQuery] AirtimeDto airtimeDto)
         {
-            var response = await vtuService.ByAirtime(airtimeDto);
+            var response = await vtuService.BuyAirtime(airtimeDto);
 
             return StatusCode(response.StatusCode, response);
         }

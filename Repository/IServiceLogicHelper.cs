@@ -1,5 +1,4 @@
-﻿
-using Paybliss.Models;
+﻿using Paybliss.Models;
 
 namespace Paybliss.Repository
 {

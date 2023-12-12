@@ -16,7 +16,8 @@ namespace Paybliss.Controllers
         [HttpGet("flight/search")]
         public IActionResult getFlight()
         {
-            return Ok();
+            Random random = new Random();
+            return Ok(random.NextInt64(10000000000,99999999999));
         }
     }
 }

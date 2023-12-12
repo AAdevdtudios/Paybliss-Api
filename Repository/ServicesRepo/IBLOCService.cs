@@ -6,5 +6,7 @@ namespace Paybliss.Repository.ServicesRepo
     {
         Task<AccountDetails> GetAccount(string email);
         Task<bool> CreateCustomers(string email, string bvn);
+        Task<List<Transactions>> GetAcountTransactions(string email);
+        Task<bool> UpdateCustomer(string email);
     }
 }

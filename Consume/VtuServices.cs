@@ -26,7 +26,7 @@ namespace Paybliss.Consume
             live_key = Environment.GetEnvironmentVariable("PAYSCRIBE_KEY_LIVE");
         }
 
-        public async Task<ResponseData<AirtimeDto>> ByAirtime(AirtimeDto airtimeDto)
+        public async Task<ResponseData<AirtimeDto>> BuyAirtime(AirtimeDto airtimeDto)
         {
             var response = new ResponseData<AirtimeDto>();
 			try
@@ -36,7 +36,7 @@ namespace Paybliss.Consume
                     {
                         User_Agent = "Flurl",
                         content_type = "application/json",
-                        Authorization = live_key
+                        Authorization = $"Bearer {live_key}"
                     })
                     .PostJsonAsync(airtimeDto);
                 response.StatusCode = request.StatusCode;

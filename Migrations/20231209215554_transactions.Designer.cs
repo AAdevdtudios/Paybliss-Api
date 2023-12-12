@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Paybliss.Data;
@@ -11,9 +12,11 @@ using Paybliss.Data;
 namespace Paybliss.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231209215554_transactions")]
+    partial class transactions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -221,10 +224,6 @@ namespace Paybliss.Migrations
                     b.Property<DateTime?>("VerifiedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("bvn")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("custormerId")
                         .HasColumnType("text");
 
@@ -235,9 +234,6 @@ namespace Paybliss.Migrations
                     b.Property<byte[]>("passwordSalt")
                         .IsRequired()
                         .HasColumnType("bytea");
-
-                    b.Property<int>("tier")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

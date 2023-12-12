@@ -57,5 +57,19 @@ namespace Paybliss.Controllers
                 return StatusCode(response.StatusCode, response);
             }
         }
+
+        [HttpGet("transactions")]
+        [Authorize]
+        public async Task<ActionResult<ResponseData<List<Transactions>>>> GetTransactions()
+        {
+            var userEmail = User.FindFirst(ClaimTypes.Name)!.Value;
+            var responseData = new ResponseData<List<Transactions>>();
+
+            responseData.Data = await _blocService.GetAcountTransactions(userEmail);
+            responseData.Successful = true;
+            responseData.Message = "All transactions";
+            responseData.StatusCode = 200;
+            return StatusCode(responseData.StatusCode, responseData);
+        }
     }
 }

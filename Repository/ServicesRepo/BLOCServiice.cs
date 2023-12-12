@@ -40,7 +40,7 @@ namespace Paybliss.Repository.ServicesRepo
                 authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
                 accept = "application/json",
                 content_type = "application/json"
-            }).AppendPathSegment("/customers")
+            }).AppendPathSegment("/customers").AllowAnyHttpStatus()
             .PostJsonAsync(createCustomer)
             .ReceiveJson<BlocResponse>();
 
@@ -48,6 +48,8 @@ namespace Paybliss.Repository.ServicesRepo
                 return await Task.FromResult(false);
 
             user.custormerId = response.data.id;
+            user.tier = Tier.Tier0;
+            user.bvn = bvn;
             BlocReqDto blocReq = new BlocReqDto
             {
                 customer_id = response.data.id,
@@ -61,7 +63,7 @@ namespace Paybliss.Repository.ServicesRepo
                 accept = "application/json",
                 content_type = "application/json"
             })
-                .AppendPathSegment("/accounts")
+                .AppendPathSegment("/accounts").AllowAnyHttpStatus()
                 .PostJsonAsync(blocReq)
                 .ReceiveJson<BlocAccountRes>();
             if (accountRes.success == false)
@@ -76,6 +78,7 @@ namespace Paybliss.Repository.ServicesRepo
                 reference = accountRes.data.id,
                 currency = "NGN",
                 userId = user.Id,
+                accountId = accountRes.data.id,
             };
             user.Account = account;
 
@@ -83,21 +86,55 @@ namespace Paybliss.Repository.ServicesRepo
             return await Task.FromResult(true);
         }
         
+        public async Task<bool> UpdateCustomer(string email)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(i => i.Email == email);
+            if (user == null) return false;
+            var response = await "https://api.blochq.io/v1".WithHeaders(new
+            {
+                authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
+                accept = "application/json",
+                content_type = "application/json"
+            }).AllowAnyHttpStatus()
+            .AppendPathSegment($"/customers/{user.custormerId}")
+            .PutJsonAsync(new
+            {
+                email = user.Email,
+                phone_number = user.PhoneNumber,
+                bvn = user.bvn,
+                customer_type = "individual"
+            });
+            if (response.StatusCode != 200)
+                return false;
+            return true;
+        }
+
         public async Task<AccountDetails> GetAccount(string email)
         {
             var user = await _context.User.Include(c => c.Account).FirstOrDefaultAsync(i => i.Email == email);
-
+             
             var accountDetails = await "https://api.blochq.io/v1".WithHeaders(new
             {
                 authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
                 accept = "application/json",
                 content_type = "application/json"
             }).AppendPathSegment($"/accounts/number/{user!.Account!.accountNumber}")
+            .AllowAnyHttpStatus()
             .GetJsonAsync<BlocAccount>();
 
             user.Account.amount = accountDetails.data.balance.ToString();
+            user.Account.accountId = accountDetails.data.id.ToString();
             await _context.SaveChangesAsync();
             return user.Account;
         }
+
+        public async Task<List<Transactions>> GetAcountTransactions(string email)
+        {
+            var user = await _context.User.Include(t=>t.transactions).FirstOrDefaultAsync(i=> i.Email == email);
+
+            return user!.transactions.ToList();
+        }
+
+
     }
 }

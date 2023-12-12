@@ -1,13 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 
 namespace Paybliss.Models.Dto
 {
-    public record struct RegisterDto(
-        [Required, MinLength(3)] string firstname,
-        [Required, MinLength(3)] string lastname,
-        [Required, MinLength(3)] string email,
-        [Required, MinLength(10)] string phoneNumber,
-        [Required, MinLength(6)] string password
-        );
+    public class RegisterDto
+    {
+        [Required, MinLength(3)]
+        public string firstname { get; set; } = string.Empty;
+        [Required, MinLength(3)]
+        public string lastname { get; set; } = string.Empty;
+        [Required, EmailAddress]
+        public string email { get; set; } = string.Empty;
+        [Required]
+        public string bvn { get; set; } = string.Empty;
+        [Required, MinLength(10)]
+        public string phoneNumber { get; set; } = string.Empty;
+        [Required, MinLength(6)]
+        public string password { get; set; } = string.Empty;
+    }
 }

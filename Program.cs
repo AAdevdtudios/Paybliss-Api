@@ -12,12 +12,17 @@ using Reloadly.Core.Enums;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Paybliss.Repository.ServicesRepo;
+using System.Text.Json.Serialization;
+using Paybliss.Repository.BlocVTU;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(opt =>
+{
+    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -27,6 +32,7 @@ builder.Services.AddSingleton<IServiceLogicHelper, ServiceLogicHelper>();
 builder.Services.AddSingleton<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IVtuService, VtuServices>();
 builder.Services.AddScoped<IBLOCService, BLOCServiice>();
+builder.Services.AddScoped<IBlocVTUService, BlocVTUService>();
 //builder.Services.AddTransient<IBlocService, BlocService>();
 
 //Third perty
@@ -49,6 +55,7 @@ builder.Services.AddSingleton<IAirtimeApi, AirtimeApi>(
         "CvKhJSeo5jlANLbGgRC8bdWksf606Pjp", "FIF7E35vNA-enOyxiSVLELMvD16a87-oOAqEVBt93g8w9r4jNnDACG1sSbgi7Hj",
         ReloadlyEnvironment.Sandbox,
         disableTelemetry: true));
+
 
 builder.Services.AddDbContext<DataContext>(o =>
 {
@@ -104,6 +111,7 @@ var app = builder.Build();
     app.UseSwaggerUI();
 }*/
 app.UseCors();
+//app.UseStaticFiles();
 
 app.UseSwagger();
 app.UseSwaggerUI();

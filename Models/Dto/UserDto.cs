@@ -1,15 +1,16 @@
 ﻿namespace Paybliss.Models.Dto
 {
     public record struct UserDto(
-        string firstname, 
-        string lastname, 
-        string email, 
-        string phoneNumber, 
+        string firstname,
+        string lastname,
+        string email,
+        string phoneNumber,
         string verificationToken,
         string JWToken,
         string AccountNumber,
         string custormerId,
-        string RefreshToken
+        string RefreshToken,
+        Tier tier = Tier.Tier0
         );
     /*public class UserDto
     {
