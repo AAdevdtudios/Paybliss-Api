@@ -1,4 +1,5 @@
 ﻿using Paybliss.Models;
+using Paybliss.Models.Dto;
 
 namespace Paybliss.Repository.ServicesRepo
 {
@@ -8,5 +9,6 @@ namespace Paybliss.Repository.ServicesRepo
         Task<bool> CreateCustomers(string email, string bvn);
         Task<List<Transactions>> GetAcountTransactions(string email);
         Task<bool> UpdateCustomer(string email);
+        Task<ResponseData<bool>> UpgradeCustomerTierOne(UpgradeTireDto tireDto, string email);
     }
 }

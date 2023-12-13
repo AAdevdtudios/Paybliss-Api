@@ -1,4 +1,5 @@
-﻿using Flurl.Http;
+﻿using Azure;
+using Flurl.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -70,6 +71,15 @@ namespace Paybliss.Controllers
             responseData.Message = "All transactions";
             responseData.StatusCode = 200;
             return StatusCode(responseData.StatusCode, responseData);
+        }
+
+        [HttpPost("upgrade-tier1")]
+        [Authorize]
+        public async Task<ActionResult> UpgradeTire(UpgradeTireDto tireDto)
+        {
+            var email = User.FindFirst(ClaimTypes.Name)!.Value;
+            var response = await _blocService.UpgradeCustomerTierOne(tireDto, email);
+            return StatusCode(response.StatusCode);
         }
     }
 }

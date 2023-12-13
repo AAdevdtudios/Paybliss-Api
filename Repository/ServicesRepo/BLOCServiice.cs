@@ -4,6 +4,7 @@ using Paybliss.Data;
 using Paybliss.Models;
 using Paybliss.Models.Dto;
 using Paybliss.Models.HttpResp;
+using Reloadly.Airtime.Dto.Response;
 
 namespace Paybliss.Repository.ServicesRepo
 {
@@ -135,6 +136,54 @@ namespace Paybliss.Repository.ServicesRepo
             return user!.transactions.ToList();
         }
 
+        public async Task<ResponseData<bool>> UpgradeCustomerTierOne(UpgradeTireDto tireDto, string email)
+        {
+            var user = await _context.User.FirstOrDefaultAsync(i => i.Email == email);
+            var responseData = new ResponseData<bool>();
+            if (user == null)
+            {
+                responseData.Successful = false;
+                responseData.StatusCode = 400;
+                return responseData;
+            }
+            var response = await "https://api.blochq.io/v1".WithHeaders(new
+            {
+                authorization = "Bearer sk_live_656201fe117aa609f99dfe39656201fe117aa609f99dfe3a",
+                accept = "application/json",
+                content_type = "application/json"
+            }).AllowAnyHttpStatus()
+            .AppendPathSegment($"/customers/upgrade/t1/{user.custormerId}")
+            .PutJsonAsync(new
+            {
+                place_of_birth = tireDto.place_of_birth,
+                dob = tireDto.dob,
+                gender = tireDto.gender,
+                country = tireDto.country,
+                address= new
+                {
+                    street = tireDto.street,
+                    city = tireDto.city,
+                    state = tireDto.state,
+                    country = tireDto.country,
+                    postal_code = tireDto.postal_code,
+                },
+                image = tireDto.image,
+            });
 
+            if(response.StatusCode != 200)
+            {
+                responseData.StatusCode = 400;
+                responseData.Message = "Cant do anything";
+                responseData.Successful = false;
+                return responseData;
+            }
+
+            user.tier = Tier.Tier1;
+            await _context.SaveChangesAsync();
+            responseData.Successful = true;
+            responseData.StatusCode = 200;
+            responseData.Data = true;
+            return responseData;
+        }
     }
 }
